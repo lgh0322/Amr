@@ -106,7 +106,7 @@ public class AmrAudioEncoder {
         }
         audioRecorder = new MediaRecorder();
         audioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.RAW_AMR);
+        audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_NB);
         final int mono = 1;
         audioRecorder.setAudioChannels(mono);
         audioRecorder.setAudioSamplingRate(8000);
@@ -118,6 +118,7 @@ public class AmrAudioEncoder {
             audioRecorder.prepare();
             audioRecorder.start();
         } catch (Exception e) {
+            e.printStackTrace();
             releaseMediaRecorder();
             showToastText("手机不支持录音此功能");
             ret = false;
@@ -183,7 +184,14 @@ public class AmrAudioEncoder {
     }
 
     private void showToastText(String msg) {
-        Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show();
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     private class AudioCaptureAndSendThread implements Runnable {
@@ -218,6 +226,7 @@ public class AmrAudioEncoder {
                     readSomeData(sendBuffer, offset + 1, frameLength, dataInput);
                     offset += frameLength + 1;
                 }
+                Log.e("fuck",""+ sendBuffer.length);
                 udpSend(udpSocket, sendBuffer, offset);
             }
             udpSocket.close();
